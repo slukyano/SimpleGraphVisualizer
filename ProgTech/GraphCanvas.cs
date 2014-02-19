@@ -8,11 +8,13 @@ namespace ProgTech
 {
     class GraphCanvas : GroupBox
     {
-        private static readonly int GraphMargin = 50;
-        private static readonly double XSize = 32.0;
-        private static readonly double YSize = 50.0;
-        private static readonly double XBase = 0.0;
-        private static readonly double YBase = 20.0;
+        private int GraphMargin = 50;
+        private double XSize = 32.0;
+        private double YSize = 42.0;
+        private double XBase = 0.0;
+        private double YBase = 20.0;
+        private double XDelta = 5;
+        private double YDelta = 10;
 
         private readonly List<GraphLine> Lines = new List<GraphLine>();
 
@@ -54,11 +56,41 @@ namespace ProgTech
             if (Lines.Count == 0)
                 return;
 
+            Pen blackPen = new Pen(Color.Black);
+            SolidBrush blackBrush = new SolidBrush(Color.Black);
+
             e.Graphics.TranslateTransform(GraphMargin, Height - GraphMargin);
+
+            for (double x = XBase; x <= XBase + XSize; x += XDelta)
+            {
+                Point axisPoint = TransformPoint(new GraphPoint(x, 0));
+
+                e.Graphics.DrawString(x.ToString("0.##"),
+                    new System.Drawing.Font("Arial", 12),
+                    blackBrush,
+                    new Point(axisPoint.X - 5, 5));
+    
+                if (x != XBase)
+                    e.Graphics.DrawLine(blackPen, new Point(axisPoint.X, -3), new Point(axisPoint.X, 3));
+            }
+            
+            for (double y = YBase; y <= YBase + YSize; y += YDelta)
+            {
+                Point axisPoint = TransformPoint(new GraphPoint(0, y));
+
+                e.Graphics.DrawString(y.ToString("0.##"),
+                    new System.Drawing.Font("Arial", 12),
+                    blackBrush,
+                    new Point(-30, -(axisPoint.Y + 10)));
+
+                if (y != YBase)
+                    e.Graphics.DrawLine(blackPen, new Point(-3, -axisPoint.Y), new Point(3, -axisPoint.Y));
+            }
+
             e.Graphics.ScaleTransform(1.0F, -1.0F);
 
-            e.Graphics.DrawLine(new Pen(Color.Black), 0, 0, Width - GraphMargin*2, 0);
-            e.Graphics.DrawLine(new Pen(Color.Black), 0, 0, 0, Height - GraphMargin*2);
+            e.Graphics.DrawLine(blackPen, 0, 0, Width - GraphMargin*2, 0);
+            e.Graphics.DrawLine(blackPen, 0, 0, 0, Height - GraphMargin*2);
 
             foreach (GraphLine line in Lines)
             {
